@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Checkbox, Link, Spinner } from "@nextui-org/react";
 import { useDisclosure } from '@nextui-org/use-disclosure'
 import { LoginProps } from "../types";
-
+import Recaptcha from "./Recaptcha";
 import { useFormik } from 'formik'
 import * as yup from 'yup'
 import { useAppDispatch, useAppSelector } from "../lib/hooks"
@@ -14,7 +14,9 @@ import SignUp from './SignUp'
 import { useRouter } from "next/navigation";
 import VerifyNewDevice from "./VerifyNewDevice";
 import Spin from "./Spinner";
+import  ReCAPTCHA  from  "react-google-recaptcha";
 export default function Login({ isOpen, onClose, openSignUp, openForgot,openVerifyDevice }: LoginProps) {
+    const [tokenCaptcha,setTokenCaptcha] = useState("")
     const [isOpenSign, setIsOpenSign] = useState(false)
     const [isError, setError] = useState(false)
     const [messageError,setMessageError]=useState("")
@@ -36,7 +38,7 @@ export default function Login({ isOpen, onClose, openSignUp, openForgot,openVeri
             email: "",
             password: "",
         },
-        // validationSchema: schema,
+        validationSchema: schema,
         onSubmit: async (value) => {
             await dispatch(checkDevice(value))
         },
@@ -49,23 +51,37 @@ export default function Login({ isOpen, onClose, openSignUp, openForgot,openVeri
             if(user.isError && Object.keys(user.message).length >0)  {setError(true);setMessageError(`${user.message.message}`)}
         }
         if(user.isCheckDevice && user.isSuccess){
-            dispatch(logIn(formik.values))
+            dispatch(logIn({email:formik.values.email,password:formik.values.password,token:tokenCaptcha}))
         }
         if(user.isCheckDevice && user.isError && user.message.message === "Bạn đang đăng nhập trên thiết bị mới, hãy xác minh bằng email trước"){
            openVerifyDevice()
         }
-        if(user.isVerifyDevice  && user.isSuccess) dispatch(logIn(formik.values))
+        if(user.isVerifyDevice  && user.isSuccess) dispatch(logIn({email:formik.values.email,password:formik.values.password,token:tokenCaptcha}))
         if(user.isLoading) {setIsLoading(true)}
         if(!user.isLoading) setIsLoading(false)
         if(!user.isCheck && !user.isLoading && user.isError &&  Object.keys(user.message).length === 0) {setError(true);setMessageError("Server Error")}
         if(!user.isCheck  && !user.isLoading && user.isError && Object.keys(user.message).length >0)  {setError(true);setMessageError(`${user.message.message}`)}
-    }, [user.isLoading]) 
+    }, [user.isLoading,tokenCaptcha]) 
     console.log(`errorrrr`,isError)
   
     const handleError=()=>{
         setError(false),
         setMessageError("")
     }
+
+    const handleRecaptchaVerify = (token:string) => {
+        // Send token to server for verification
+    };
+    const handleCaptchaChange=(value:any)=>{
+        console.log('reCAPTCHA Token:', value);
+        setTokenCaptcha(value)
+        
+    }
+    useEffect(()=>{
+        console.log('tokencaptcha',tokenCaptcha,"1")
+
+    },[tokenCaptcha])
+    const recaptchaRef :any = React.createRef();
     return (
         <>
             {isOpen &&
@@ -140,7 +156,13 @@ export default function Login({ isOpen, onClose, openSignUp, openForgot,openVeri
                                             Forgot password?
                                         </Link>
                                     </div>
-
+                                    <div className="">
+                                        <ReCAPTCHA
+                                            ref = {recaptchaRef}
+                                            sitekey="6LcNZXAqAAAAAK2ByasSVQAr7S_boOIE3ehUlrI_"
+                                            onChange={handleCaptchaChange}
+                                        />
+                                    </div>
 
                                     {isLoading &&
                                         <Spin />

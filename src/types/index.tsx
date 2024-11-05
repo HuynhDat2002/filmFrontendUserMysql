@@ -7,7 +7,8 @@ export interface LoginProps{
 }
 export interface LoginValueProps{
     email:string,
-    password:string
+    password:string,
+    token:string
 }
 
 export interface SignProps{
@@ -61,8 +62,9 @@ export interface CommentProps{
     comment_content: string,
     comment_parentId: string,
     comment_user:any,
-    comment_filmId:string,
-    _id:string,
+    comment_movieId:string,
+    comment_tvId:string,
+    id:string,
     createdAt:any,
     updatedAt:any
 }

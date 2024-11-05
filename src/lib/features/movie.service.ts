@@ -1,8 +1,9 @@
 import { base_url ,updateAxiosUserInstanceFilm} from '../../utils/axiosConfig';
 let axios = updateAxiosUserInstanceFilm()
+
 export const getMovies = async (page:number)=>{
     try{
-        updateAxiosUserInstanceFilm()
+        // updateAxiosUserInstanceFilm()
         console.log('movies service')
         const response = await axios.get(`/movie/getAllMovie?page=${page}`);
         console.log('response movies', response.data)

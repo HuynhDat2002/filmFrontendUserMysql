@@ -67,7 +67,7 @@ export function middleware(request: NextRequest) {
 export const logIn = async (data: LoginValueProps) => {
     try {
         console.log('data login',data)
-        const response = await axiosUser.post(`/signIn`, data);
+        const response = await axiosUser.post(`/signIn`, {email:data.email,password:data.password,tokenCaptcha:data.token});
         await localStorage.setItem('user', JSON.stringify(response.data.metadata));
         await updateAxiosUserInstance();  // Update the axios instance with new token
         await updateAxiosUserInstanceFilm()
@@ -77,7 +77,6 @@ export const logIn = async (data: LoginValueProps) => {
         console.log(`error login`, error.response.data)
         throw error.response.data
     }
-
 }
 
 export const checkDevice = async (data: LoginValueProps) => {
@@ -121,7 +120,7 @@ export const logout = async () => {
         return response.data;
     }
     catch (error: any) {
-        console.log(`error login`, error.response.data)
+        console.log(`error logout`, error.response.data)
         throw error.response.data
     }
 
